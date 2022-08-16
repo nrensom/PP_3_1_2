@@ -1,15 +1,13 @@
-package ru.kata.spring.boot_security.demo.configs;
+package ru.kata.spring.boot_security.demo.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.dao.RoleDao;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
-import ru.kata.spring.boot_security.demo.repository.RoleRepo;
-import ru.kata.spring.boot_security.demo.repository.UserRepo;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.HashSet;
@@ -17,18 +15,15 @@ import java.util.Set;
 
 @Component
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
-    private final static long ROLE_ADMIN = 1;
-    private final static long ROLE_USER = 2;
     private final UserService userService;
-    private final RoleRepo roleRepo;
-    private final PasswordEncoder passwordEncoder;
+    private final RoleDao roleDao;
 
     @Autowired
-    public SetupDataLoader(UserService userService, RoleRepo roleRepo, PasswordEncoder passwordEncoder) {
+    public SetupDataLoader(UserService userService, RoleDao roleDao) {
         this.userService = userService;
-        this.roleRepo = roleRepo;
-        this.passwordEncoder = passwordEncoder;
+        this.roleDao = roleDao;
     }
+
 
     @Override
     @Transactional
@@ -38,14 +33,14 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             return;
         }
 
-        Role adminRole = new Role(ROLE_ADMIN, "ROLE_ADMIN");
-        Role userRole = new Role(ROLE_USER, "ROLE_USER");
+        Role adminRole = new Role("ROlE_ADMIN");
+        Role userRole = new Role("ROLE_USER");
         Set<Role> adminRoles = new HashSet<>();
         adminRoles.add(adminRole);
         Set<Role> userRoles = new HashSet<>();
         userRoles.add(userRole);
-        roleRepo.save(adminRole);
-        roleRepo.save(userRole);
+        roleDao.save(adminRole);
+        roleDao.save(userRole);
 
         User admin = new User();
         admin.setUsername("admin");
@@ -58,7 +53,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         user.setUsername("user");
         user.setName("Peppa");
         user.setLastName("Pig");
-        user.setAge((byte)4);
+        user.setAge((byte) 4);
         user.setDepartment("what");
         user.setPassword("user");
         user.setRoles(userRoles);
